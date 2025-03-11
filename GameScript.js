@@ -2,9 +2,9 @@
 const GameWidth = 800;
 const GameHeight = 800;
 const MazeWallsColor = "Black";
-const MazeWallWidth = 2;
-const NumberOfVerticalWalls = 5;
-const NumberOfHorisontalWalls = 5;
+const MazeWallWidth = 10;
+const NumberOfVerticalWalls = 15;
+const NumberOfHorisontalWalls = 15;
 
 var MazeWalls;
 // Setup function
@@ -17,45 +17,48 @@ function setup() {
 
     //Player = new Sprite(500, 200, 100, 50, "d");
 
-    WallGroup = new Group();
-	Wall_Left = new Sprite(GameWidth + 10, 0, 20, GameHeight * 2, 'k');
-	WallGroup.add(Wall_Left);
-	Wall_Right = new Sprite(-10, 0, 20, GameHeight * 2, 'k');
-	WallGroup.add(Wall_Right);
-	Wall_Top = new Sprite(0, -10, GameWidth * 2, 20, 'k');
-	WallGroup.add(Wall_Top);
-	Wall_Bottom = new Sprite(0, GameHeight + 10, GameWidth * 2, 20, 'k');
-	WallGroup.add(Wall_Bottom);
+    // Make the walls
+    //MakeWall(0, 0, NumberOfVerticalWalls + 1, 0);
+    //MakeWall(NumberOfVerticalWalls + 1, 0, NumberOfVerticalWalls + 1, NumberOfHorisontalWalls + 1);
+    //MakeWall(0, 0, 0, NumberOfHorisontalWalls + 1);
+    //MakeWall(0, NumberOfHorisontalWalls + 1, 0, NumberOfVerticalWalls + 1);
 
-    console.log("Setup finished");
     MazeWalls = new Group();
-    MakeWall(0, 1, 1, 1);
-    MakeWall(1, 1, 1, 1);
-    MakeWall(2, 1, 1, 1);
-    MakeWall(3, 1, 1, 1);
-    MakeWall(4, 1, 1, 1);
-    MakeWall(5, 1, 1, 1);
-    MakeWall(6, 1, 1, 1);
+    console.log("Setup finished");
+    for (var i = 0; i <= NumberOfVerticalWalls + 2; i++) {
+        for (var j = 0; j <= NumberOfHorisontalWalls + 2; j++) {
+            MakeWall(i, j, i, j);
+            //alert(i + " " + j + " " + i + " " + j + " ");
+        }
+    }
+    MakeWall(1, 1, 3, 1);
+    MakeWall(1, 2, 1, 3);
+    MakeWall(7,7,7,9);
 }
 
 function MakeWall(StartingX, StartingY, EndingX, EndingY) {
     // Function that takes in two co-ordinates and make a wall between them
     // Make the grid a 21 by 21 square, and pass in points to that square
-    // This should make it quicker to create the maze, and it hopefully will give me excellence
 
     // Check for ArgumentOutOfBounds
+    // Check for Ending being below the starting coordinates
 
 
     // Create new sprite
-    var WallX = GameWidth / (NumberOfVerticalWalls + 1) * StartingX - (MazeWallWidth / 2);
-    var WallY = GameHeight / (NumberOfHorisontalWalls + 1) * StartingY - (MazeWallWidth / 2);
-    var WallEndX = GameWidth / (NumberOfVerticalWalls + 1) * EndingX - GameWidth / (NumberOfVerticalWalls + 1) * StartingX + MazeWallWidth;
-    var WallEndY = GameHeight / (NumberOfHorisontalWalls + 1) * EndingY - GameHeight / (NumberOfHorisontalWalls + 1) * StartingY + MazeWallWidth;
+    var HorisontalWallGap = GameWidth / (NumberOfVerticalWalls + 1);
+    var VerticalWallGap = GameHeight / (NumberOfHorisontalWalls + 1);
+
+    var WallX = HorisontalWallGap * StartingX + (HorisontalWallGap * EndingX - HorisontalWallGap * StartingX) / 2;
+    var WallY = VerticalWallGap * StartingY + (VerticalWallGap * EndingY - VerticalWallGap * StartingY) / 2;
+    var WallEndX = HorisontalWallGap * EndingX - HorisontalWallGap * StartingX + MazeWallWidth;
+    var WallEndY = VerticalWallGap * EndingY - VerticalWallGap * StartingY + MazeWallWidth;
     MazeWall = new Sprite(WallX, WallY, WallEndX, WallEndY, "k");
+    MazeWall.color = "#6B5C7D";
+
     MazeWalls.add(MazeWall);
 }
 
 
 function draw() {
-    background("blue");
+    background("#355C7D");
 }
