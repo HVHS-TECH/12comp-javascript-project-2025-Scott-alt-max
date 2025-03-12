@@ -3,8 +3,8 @@ const GameWidth = 800;
 const GameHeight = 800;
 const MazeWallsColor = "Black";
 const MazeWallWidth = 10;
-const NumberOfVerticalWalls = 15;
-const NumberOfHorisontalWalls = 15;
+const NumberOfVerticalWalls = 3;
+const NumberOfHorisontalWalls = 3;
 
 var MazeWalls;
 // Setup function
@@ -17,23 +17,26 @@ function setup() {
 
     //Player = new Sprite(500, 200, 100, 50, "d");
 
-    // Make the walls
-    //MakeWall(0, 0, NumberOfVerticalWalls + 1, 0);
-    //MakeWall(NumberOfVerticalWalls + 1, 0, NumberOfVerticalWalls + 1, NumberOfHorisontalWalls + 1);
-    //MakeWall(0, 0, 0, NumberOfHorisontalWalls + 1);
-    //MakeWall(0, NumberOfHorisontalWalls + 1, 0, NumberOfVerticalWalls + 1);
-
     MazeWalls = new Group();
-    console.log("Setup finished");
     for (var i = 0; i <= NumberOfVerticalWalls + 2; i++) {
         for (var j = 0; j <= NumberOfHorisontalWalls + 2; j++) {
             MakeWall(i, j, i, j);
             //alert(i + " " + j + " " + i + " " + j + " ");
         }
     }
+
+    // Make the walls
+    MakeWall(0, 0, NumberOfVerticalWalls + 1, 0);
+    MakeWall(NumberOfVerticalWalls + 1, 0, NumberOfVerticalWalls + 1, NumberOfHorisontalWalls + 1);
+    MakeWall(0, 0, 0, NumberOfHorisontalWalls + 1);
+    MakeWall(0, NumberOfHorisontalWalls + 1, NumberOfVerticalWalls + 1, NumberOfVerticalWalls + 1);
+
+    MakeWall(3, 0, 3, 2);
     MakeWall(1, 1, 3, 1);
     MakeWall(1, 2, 1, 3);
     MakeWall(7,7,7,9);
+
+    console.log("Setup finished");
 }
 
 function MakeWall(StartingX, StartingY, EndingX, EndingY) {
