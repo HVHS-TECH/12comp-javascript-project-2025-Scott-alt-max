@@ -34,7 +34,9 @@ function setup() {
     MakeWall(3, 0, 3, 2);
     MakeWall(1, 1, 3, 1);
     MakeWall(1, 2, 1, 3);
-    MakeWall(7,7,7,9);
+    MakeWall(0, 2, 2, 2);
+    MakeWall(2, 2, 2, 3);
+    MakeWall(2, 3, 3, 3);
 
     console.log("Setup finished");
 }
