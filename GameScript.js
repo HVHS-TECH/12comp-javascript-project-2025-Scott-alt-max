@@ -48,6 +48,7 @@ function RandomWalk() {
             console.log("The next square is a edge wall");
         }
     }
+    e
 
     // If not, go to the next square
 
