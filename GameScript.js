@@ -7,8 +7,64 @@ const NumberOfVerticalWalls = 3;
 const NumberOfHorisontalWalls = 3;
 
 var MazeWalls;
-// Setup function
+// For the middle squares of the maze, a 4 means part of the maze, a 3 means not part of the maze, 
+// and for the walls, a 2 means an edge wall, a 1 means a wall, a zero means a gap, and a -1 mean a corner
+var Maze = [[-1,  2, -1,  2, -1,  2, -1,  2, -1],
+            [ 2,  3,  1,  3,  1,  3,  1,  3,  2],
+            [-1,  1, -1,  1, -1,  1, -1,  1, -1],
+            [ 2,  3,  1,  3,  1,  3,  1,  3,  2],
+            [-1,  1, -1,  1, -1,  1, -1,  1, -1],
+            [ 2,  3,  1,  3,  1,  3,  1,  3,  2],
+            [-1,  1, -1,  1, -1,  1, -1,  1, -1],
+            [ 2,  3,  1,  3,  1,  3,  1,  3,  2],
+            [-1,  2, -1,  2, -1,  2, -1,  2, -1]];
 
+function InitaliseRandomMazeSquare() {
+    var SquareX = Math.floor(Math.random() * (NumberOfVerticalWalls + 1)) * 2 + 1;
+    var SquareY = Math.floor(Math.random() * (NumberOfHorisontalWalls + 1)) * 2 + 1;
+    Maze[SquareX][SquareY] = 4;
+}
+
+function RandomWalk() {
+    // Create a 2D array that stores the array co-ordinates of the squares in the random walk
+
+    // Start at a random square
+    var SquareX = Math.floor(Math.random() * (NumberOfVerticalWalls + 1)) * 2 + 1;
+    var SquareY = Math.floor(Math.random() * (NumberOfHorisontalWalls + 1)) * 2 + 1;
+    if (Maze[SquareX][SquareY] == 4) {
+        console.log("Staring square of the random walk was already part of the maze");
+        return
+    }
+
+    // Pick a random direction
+    var Direction = (Math.floor(Math.random() * 2)) - 1;
+    if (Math.random > 0.5) {
+        // If the wall is a edge wall, go back
+        if (Maze[SquareX][SquareY + Direction] == 2) {
+            console.log("The next square is a edge wall");
+        }
+    } else {
+        if (Maze[SquareX + Direction][SquareY == 2]){
+            console.log("The next square is a edge wall");
+        }
+    }
+
+    // If not, go to the next square
+
+    // If the next square is part of the trail, retrack and delete those square from the trail until you get back to that square
+
+    // If the next square is not part of the trail, add it to the trail, then repeat from a random direction
+
+    // If the next square is part of the maze (NextSquare ==  4) add the trail to the maze by making all of the walls between the square 0 instead of 1
+
+    // Repeat until all square are a part of the maze
+}
+
+console.log(Maze);
+InitaliseRandomMazeSquare();
+console.log(Maze);
+
+// Setup function
 function setup() {
     console.log("Setup started");
 
