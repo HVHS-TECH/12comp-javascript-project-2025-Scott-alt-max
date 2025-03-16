@@ -7,48 +7,93 @@ const NumberOfVerticalWalls = 3;
 const NumberOfHorisontalWalls = 3;
 
 var MazeWalls;
-// For the middle squares of the maze, a 4 means part of the maze, a 3 means not part of the maze, 
-// and for the walls, a 2 means an edge wall, a 1 means a wall, a zero means a gap, and a -1 mean a corner
-var Maze = [[-1,  2, -1,  2, -1,  2, -1,  2, -1],
-            [ 2,  3,  1,  3,  1,  3,  1,  3,  2],
-            [-1,  1, -1,  1, -1,  1, -1,  1, -1],
-            [ 2,  3,  1,  3,  1,  3,  1,  3,  2],
-            [-1,  1, -1,  1, -1,  1, -1,  1, -1],
-            [ 2,  3,  1,  3,  1,  3,  1,  3,  2],
-            [-1,  1, -1,  1, -1,  1, -1,  1, -1],
-            [ 2,  3,  1,  3,  1,  3,  1,  3,  2],
-            [-1,  2, -1,  2, -1,  2, -1,  2, -1]];
+// For the middle squares of the maze, a 6 means part of the maze, a 5 means a part of the trail, and a 4 means not part of the maze or trail, 
+// and for the walls, a 3 means an edge wall, a 2 means a wall, a 1 means a gap, and a 0 mean a corner
+var Maze = [[0, 3, 0, 3, 0, 3, 0, 3, 0],
+            [3, 4, 2, 4, 2, 4, 2, 4, 3],
+            [0, 2, 0, 2, 0, 2, 0, 2, 0],
+            [3, 4, 2, 4, 2, 4, 2, 4, 3],
+            [0, 2, 0, 2, 0, 2, 0, 2, 0],
+            [3, 4, 2, 4, 2, 4, 2, 4, 3],
+            [0, 2, 0, 2, 0, 2, 0, 2, 0],
+            [3, 4, 2, 4, 2, 4, 2, 4, 3],
+            [0, 3, 0, 3, 0, 3, 0, 3, 0]];
 
 function InitaliseRandomMazeSquare() {
     var SquareX = Math.floor(Math.random() * (NumberOfVerticalWalls + 1)) * 2 + 1;
     var SquareY = Math.floor(Math.random() * (NumberOfHorisontalWalls + 1)) * 2 + 1;
-    Maze[SquareX][SquareY] = 4;
+    Maze[SquareX][SquareY] = 6;
 }
 
 function RandomWalk() {
     // Create a 2D array that stores the array co-ordinates of the squares in the random walk
+    var RandomWalkCoordinates = [];
 
-    // Start at a random square
-    var SquareX = Math.floor(Math.random() * (NumberOfVerticalWalls + 1)) * 2 + 1;
-    var SquareY = Math.floor(Math.random() * (NumberOfHorisontalWalls + 1)) * 2 + 1;
-    if (Maze[SquareX][SquareY] == 4) {
-        console.log("Staring square of the random walk was already part of the maze");
-        return
+    while(true) {
+        // Start at a random square
+        var SquareX = Math.floor(Math.random() * (NumberOfVerticalWalls + 1)) * 2 + 1;
+        var SquareY = Math.floor(Math.random() * (NumberOfHorisontalWalls + 1)) * 2 + 1;
+        if (Maze[SquareX][SquareY] == 6) {
+            console.log("Staring square of the random walk was already part of the maze");
+        }
+        else {
+            Maze[SquareX][SquareY] = 5;
+            RandomWalkCoordinates.push([SquareX, SquareY]);
+            break;
+        }
     }
-
+    
+    
     // Pick a random direction
-    var Direction = (Math.floor(Math.random() * 2)) - 1;
-    if (Math.random > 0.5) {
-        // If the wall is a edge wall, go back
-        if (Maze[SquareX][SquareY + Direction] == 2) {
-            console.log("The next square is a edge wall");
+    while(true) {
+        switch (Math.floor(Math.random() * 4)) {
+            case 0:
+                // Go up
+
+                // See if next wall is edge wall
+                if(IsNextWallAnEdge(SquareX, (SquareY - 1))) {
+                    // If it is, go back
+                    break;
+                }
+                // See if next square is part of trail
+
+                // See if next square is part of maze
+                // See if none are true
+                else {
+                    // If non are true, change the coordinates to the new square;
+                    SquareY -= 2;
+                    Maze[SquareX][SquareY] = 5;
+                }
+                break;
+            case 1:
+                // Go right
+                break;
+            case 2:
+                // Go down
+                break;
+            case 3:
+                // Go left
         }
-    } else {
-        if (Maze[SquareX + Direction][SquareY == 2]){
-            console.log("The next square is a edge wall");
-        }
+
+        /*var Direction = (Math.floor(Math.random() * 2)) - 1;
+        if (Math.random > 0.5) {
+            // If the wall is a edge wall, go back
+            if (Maze[SquareX][SquareY + Direction] == 2) {
+                console.log("The next square is a edge wall");
+                break;
+            }
+            
+        } else {
+            if (Maze[SquareX + Direction][SquareY == 2]){
+                console.log("The next square is a edge wall");
+                break;
+            }
+            
+        }*/
+        break;
     }
-    e
+
+    console.log(RandomWalkCoordinates);
 
     // If not, go to the next square
 
@@ -56,14 +101,30 @@ function RandomWalk() {
 
     // If the next square is not part of the trail, add it to the trail, then repeat from a random direction
 
-    // If the next square is part of the maze (NextSquare ==  4) add the trail to the maze by making all of the walls between the square 0 instead of 1
+    // If the next square is part of the maze (NextSquare ==  5) add the trail to the maze by making all of the walls between the square 0 instead of 1
 
     // Repeat until all square are a part of the maze
 }
 
-console.log(Maze);
+function IsNextWallAnEdge(WallX, WallY) {
+    if (Maze[WallX][WallY] == 3) {
+        return true;
+    } else {
+        return false;
+    }
+}
+function IsNextSquarePartOfTrail(squareX, squareY) {
+    if (Maze[squareX][squareY] == 5) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+//console.log(Maze);
 InitaliseRandomMazeSquare();
 console.log(Maze);
+RandomWalk();
 
 // Setup function
 function setup() {
