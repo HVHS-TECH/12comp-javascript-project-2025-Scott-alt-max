@@ -1,5 +1,13 @@
-// TODO remember that the maze coordinates are flipped
-// finish the isNextSquarePartOfMaze function
+// TODO 
+// Remember that the maze coordinates are flipped!!!!!!!!!!!!!!!!!!
+// Change NumberOfVerticalWalls to NumberOfSquaresWide or something similar
+// Fix all other variable names to naming conventions
+// Create a function that initalises the maze based off of the dimentions
+// Create a function that once the trail finishes its walk, it adds the trail to the maze
+// Loop over the 
+// Draw the finished maze
+// Change the way the draw function works so the coordinates match the maze coordinates
+// Actually turn it into a playable game
 
 // Consts and Variables
 const GameWidth = 800;
@@ -25,7 +33,8 @@ var Maze = [[0, 3, 0, 3, 0, 3, 0, 3, 0],
 function InitaliseRandomMazeSquare() {
     var SquareX = Math.floor(Math.random() * (NumberOfVerticalWalls + 1)) * 2 + 1;
     var SquareY = Math.floor(Math.random() * (NumberOfHorisontalWalls + 1)) * 2 + 1;
-    Maze[SquareX][SquareY] = 6;
+    Maze[SquareY][SquareX] = 6;
+    console.log("Maze initailisation square at " + SquareX + ", " + SquareY);
 }
 
 function RandomWalk() {
@@ -33,118 +42,153 @@ function RandomWalk() {
     var RandomWalkCoordinates = [];
 
     // Start at a random square
-    while(true) {
-        var SquareX = Math.floor(Math.random() * (NumberOfVerticalWalls + 1)) * 2 + 1;
-        var SquareY = Math.floor(Math.random() * (NumberOfHorisontalWalls + 1)) * 2 + 1;
-        if (Maze[SquareX][SquareY] == 6) {
-            console.log("Staring square of the random walk was already part of the maze");
-        }
-        else {
-            Maze[SquareX][SquareY] = 5;
-            RandomWalkCoordinates.push([SquareX, SquareY]);
-            break;
-        }
+    var SquareX = Math.floor(Math.random() * (NumberOfVerticalWalls + 1)) * 2 + 1;
+    var SquareY = Math.floor(Math.random() * (NumberOfHorisontalWalls + 1)) * 2 + 1;
+
+    // If the starting co-ordinates are already a part of the maze, keep trying until you find one that isnt
+    while(Maze[SquareY][SquareX] == 6) {
+        SquareX = Math.floor(Math.random() * (NumberOfVerticalWalls + 1)) * 2 + 1;
+        SquareY = Math.floor(Math.random() * (NumberOfHorisontalWalls + 1)) * 2 + 1;
     }
+    Maze[SquareY][SquareX] = 5;
+    RandomWalkCoordinates.push([SquareX, SquareY]);
+
+    console.log("Starting coordinates at " + RandomWalkCoordinates[0]);
     
-    var onAFreeSquare = true;
+    var ReachedTheMaze = false;
     // Pick a random direction
-    while(onAFreeSquare) {
+    while(!ReachedTheMaze) {
         switch (Math.floor(Math.random() * 4)) {
             case 0:
+                console.log("Up");
                 // Go up
 
-                // See if next wall is edge wall
-                if(IsNextWallAnEdge(SquareX, (SquareY - 1))) {
-                    // If it is, go back
-                    break;
-                }
-                // See if next square is part of trail
-                if(IsNextSquarePartOfTrail(SquareX, (SquareY - 2))) {
-                    // Backtrack through the Random Walk Coordinates until it reaches the square it is on now
-                    while(( RandomWalkCoordinates[RandomWalkCoordinates.length() - 1][0] != SquareX) && 
-                            RandomWalkCoordinates[RandomWalkCoordinates.length() - 1][1] != (SquareY - 2)) {
-                        RandomWalkCoordinates.pop();
-                    }
-                    
-                    console.log("Gone back to a square that is already part of the trail")
-                    // Change the square y to the new coordinates
+                // See if next wall is edge wall, if it is, restart with another direction
+                if (IsNextWallAnEdge(SquareX, (SquareY - 1))) { break; }
+
+                // See if next square is part of trail, if it is, backtrack until it gets back to the square and move back to that square
+                else if (IsNextSquarePartOfTrail(SquareX, (SquareY - 2))) {
+                    Backtrack(SquareX, (SquareY - 2));
                     SquareY -= 2;
                 }
+
                 // See if next square is part of maze
-                if(isNextSquarePartOfMaze()) {
-                    onAFreeSquare = false;
+                else if(isNextSquarePartOfMaze(SquareX, (SquareY - 2))) {
+                    // If next square is a part of the maze, add the co-ordinates to the random walk and break the while loop
+                    RandomWalkCoordinates.push([SquareX, SquareY - 2]);
+                    ReachedTheMaze = true;
                 }
+
                 // See if none are true
                 else {
-                    // If non are true, change the coordinates to the new square;
+                    // If none are true, change the coordinates to the new square, and add the co-ordinates to the random walk;
                     SquareY -= 2;
                     Maze[SquareY][SquareX] = 5;
+                    RandomWalkCoordinates.push([SquareX, SquareY]);
                 }
+                break;
             case 1:
+                console.log("Right");
                 // Go right
-            case 2:
-                // Go down
 
-                // See if next wall is edge wall
-                if(IsNextWallAnEdge(SquareX, (SquareY + 1))) {
-                    // If it is, go back
-                    break;
+                // See if next wall is edge wall, if it is, restart with another direction
+                if (IsNextWallAnEdge((SquareX + 1), SquareY)) { break; }
+
+                // See if next square is part of trail, if it is, backtrack until it gets back to the square and move back to that square
+                else if (IsNextSquarePartOfTrail((SquareX + 2), SquareY)) {
+                    Backtrack((SquareX + 2), SquareY);
+                    SquareX += 2;
                 }
-                // See if next square is part of trail
-                if(IsNextSquarePartOfTrail(SquareX, (SquareY - 2))) {
-                    // Backtrack through the Random Walk Coordinates until it reaches the square it is on now
-                    while(( RandomWalkCoordinates[RandomWalkCoordinates.length() - 1][0] != SquareX) && 
-                            RandomWalkCoordinates[RandomWalkCoordinates.length() - 1][1] != (SquareY - 2)) {
-                        RandomWalkCoordinates.pop();
-                    }
-                    
-                    console.log("Gone back to a square that is already part of the trail")
-                    // Change the square y to the new coordinates
-                    SquareY -= 2;
-                }
+
                 // See if next square is part of maze
+                else if(isNextSquarePartOfMaze((SquareX + 2), SquareY)) {
+                    // If next square is a part of the maze, add the co-ordinates to the random walk and break the while loop
+                    RandomWalkCoordinates.push([(SquareX + 2), SquareY]);
+                    ReachedTheMaze = true;
+                }
+
                 // See if none are true
                 else {
-                    // If non are true, change the coordinates to the new square;
-                    SquareY -= 2;
+                    // If none are true, change the coordinates to the new square, and add the co-ordinates to the random walk;
+                    SquareX += 2;
                     Maze[SquareY][SquareX] = 5;
+                    RandomWalkCoordinates.push([SquareX, SquareY]);
                 }
+                break;
+            case 2:
+                console.log("Down");
+                // Go down                
+                 
+                // See if next wall is edge wall, if it is, restart with another direction
+                if (IsNextWallAnEdge(SquareX, (SquareY + 1))) { break; }
+
+                // See if next square is part of trail, if it is, backtrack until it gets back to the square and move back to that square
+                else if (IsNextSquarePartOfTrail(SquareX, (SquareY + 2))) {
+                    Backtrack(SquareX, (SquareY + 2));
+                    SquareY += 2;
+                }
+
+                // See if next square is part of maze
+                else if(isNextSquarePartOfMaze(SquareX, (SquareY + 2))) {
+                    // If next square is a part of the maze, add the co-ordinates to the random walk and break the while loop
+                    RandomWalkCoordinates.push([SquareX, SquareY + 2]);
+                    ReachedTheMaze = true;
+                }
+
+                // See if none are true
+                else {
+                    // If none are true, change the coordinates to the new square, and add the co-ordinates to the random walk;
+                    SquareY += 2;
+                    Maze[SquareY][SquareX] = 5;
+                    RandomWalkCoordinates.push([SquareX, SquareY]);
+                }
+                break;
             case 3:
+                console.log("Left");
                 // Go left
+
+                // See if next wall is edge wall, if it is, restart with another direction
+                if (IsNextWallAnEdge((SquareX - 1), SquareY)) { break; }
+
+                // See if next square is part of trail, if it is, backtrack until it gets back to the square and move back to that square
+                else if (IsNextSquarePartOfTrail((SquareX - 2), SquareY)) {
+                    Backtrack((SquareX - 2), SquareY);
+                    SquareX -= 2;
+                }
+
+                // See if next square is part of maze
+                else if(isNextSquarePartOfMaze((SquareX - 2), SquareY)) {
+                    // If next square is a part of the maze, add the co-ordinates to the random walk and break the while loop
+                    RandomWalkCoordinates.push([(SquareX - 2), SquareY]);
+                    ReachedTheMaze = true;
+                }
+
+                // See if none are true
+                else {
+                    // If none are true, change the coordinates to the new square, and add the co-ordinates to the random walk;
+                    SquareX -= 2;
+                    Maze[SquareY][SquareX] = 5;
+                    RandomWalkCoordinates.push([SquareX, SquareY]);
+                }
         }
-
-        /*var Direction = (Math.floor(Math.random() * 2)) - 1;
-        if (Math.random > 0.5) {
-            // If the wall is a edge wall, go back
-            if (Maze[SquareX][SquareY + Direction] == 2) {
-                console.log("The next square is a edge wall");
-                break;
-            }
-            
-        } else {
-            if (Maze[SquareX + Direction][SquareY == 2]){
-                console.log("The next square is a edge wall");
-                break;
-            }
-            
-        }*/
     }
-
     console.log(RandomWalkCoordinates);
 
-    // If not, go to the next square
-
-    // If the next square is part of the trail, retrack and delete those square from the trail until you get back to that square
-
-    // If the next square is not part of the trail, add it to the trail, then repeat from a random direction
-
-    // If the next square is part of the maze (NextSquare ==  5) add the trail to the maze by making all of the walls between the square 0 instead of 1
-
-    // Repeat until all square are a part of the maze
+    function Backtrack(targetX, targetY) {
+        // Backtrack through the random walk coordinates array, removing all items as it goes, until it reaches the target
+        // Also change those coordinates to not be a part of the trail anymore
+        while(( RandomWalkCoordinates[RandomWalkCoordinates.length - 1][0] != targetX) || 
+                RandomWalkCoordinates[RandomWalkCoordinates.length - 1][1] != targetY) {
+            console.log("Backtracking");
+            Maze[RandomWalkCoordinates[RandomWalkCoordinates.length - 1][1]][RandomWalkCoordinates[RandomWalkCoordinates.length - 1][0]] = 4;
+            RandomWalkCoordinates.pop();
+        }
+    }
 }
 
-function IsNextWallAnEdge(WallX, WallY) {
-    if (Maze[WallY][WallX] == 3) {
+function IsNextWallAnEdge(wallX, wallY) {
+    if (Maze[wallY][wallX] == 3) {
+        console.log("Reached an edge");
         return true;
     } else {
         return false;
@@ -152,6 +196,15 @@ function IsNextWallAnEdge(WallX, WallY) {
 }
 function IsNextSquarePartOfTrail(squareX, squareY) {
     if (Maze[squareY][squareX] == 5) {
+        console.log("Gone back to the trail");
+        return true;
+    } else {
+        return false;
+    }
+}
+function isNextSquarePartOfMaze(squareX, squareY) {
+    if (Maze[squareY][squareX] == 6) {
+        console.log("Reached the a part of the maze");
         return true;
     } else {
         return false;
@@ -160,8 +213,8 @@ function IsNextSquarePartOfTrail(squareX, squareY) {
 
 //console.log(Maze);
 InitaliseRandomMazeSquare();
-console.log(Maze);
 RandomWalk();
+console.log(Maze);
 
 // Setup function
 function setup() {
