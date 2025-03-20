@@ -7,8 +7,8 @@ const GameWidth = 750;
 const GameHeight = 750;
 const MazeWallsColor = "Black";
 const MazeWallWidth = 2;
-const SQUARESWIDE = 30;
-const SQUARESTALL = 30;
+const SQUARESWIDE = 1;
+const SQUARESTALL = 1;
 var MazeWalls;
 
 // For the middle squares of the maze, a 6 means part of the maze, a 5 means a part of the trail, and a 4 means not part of the maze or trail, 
@@ -266,23 +266,38 @@ function MakeWall(StartingX, StartingY, EndingX, EndingY) {
     MazeWalls.add(MazeWall);
 }
 
+// Function to end the game when the player collides with the finish square
+function EndGame() {
+    console.log("Woo Hoo");
+}
+
 // Setup function
 function setup() {
     console.log("Setup started");
 
     cnw = new Canvas(GameWidth, GameHeight);
 
+    // var for the width of the squares
+    SquareWidth = GameWidth / SQUARESWIDE - MazeWallWidth;
+    SquareHeight = GameHeight / SQUARESTALL - MazeWallWidth;
     // Player sprite
-    var PlayerWidth =  0.5 * GameWidth / SQUARESWIDE - MazeWallWidth
-    var PlayerHeight = 0.5 * GameHeight / SQUARESTALL - MazeWallWidth
+    var PlayerWidth =  0.5 * SquareWidth;
+    var PlayerHeight = 0.5 * SquareHeight;
     var PlayerStartingX = (GameWidth / SQUARESWIDE - PlayerWidth);
     var PlayerStartingY = (GameHeight / SQUARESTALL - PlayerHeight);
     Player = new Sprite(PlayerStartingX, PlayerStartingY, PlayerWidth, PlayerHeight, "d");
+    Player.color = "#FF69B4";
 
     // Draw the walls
     MazeWalls = new Group();
     DrawMaze();
     MazeWalls.color = MazeWallsColor;
+    //MazeWalls.bounciness = 2;
+
+    // Make the finish square
+    FinishSquare = new Sprite(GameWidth - PlayerWidth, GameHeight - PlayerHeight, SquareWidth, SquareHeight, "k");
+    FinishSquare.color = "Green";
+    FinishSquare.collides(Player, EndGame);
 
     console.log("Setup finished");
 }
