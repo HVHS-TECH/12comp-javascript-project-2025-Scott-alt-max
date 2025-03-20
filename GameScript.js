@@ -1,21 +1,14 @@
-// TODO 
-// Remember that the maze coordinates are flipped!!!!!!!!!!!!!!!!!!
-// Change NumberOfVerticalWalls to NumberOfSquaresWide or something similar
+// TODO
 // Fix all other variable names to naming conventions
-// Create a function that initalises the maze based off of the dimentions
-// Loop over the maze until all squares are a part of the maze
-// Draw the finished maze
-// Change the way the draw function works so the coordinates match the maze coordinates
 // Actually turn it into a playable game
 
 // Consts and Variables
-const GameWidth = 800;
-const GameHeight = 800;
+const GameWidth = 750;
+const GameHeight = 750;
 const MazeWallsColor = "Black";
-const MazeWallWidth = 10;
-const SQUARESWIDE = 15;
-const SQUARESTALL = 15;
-
+const MazeWallWidth = 2;
+const SQUARESWIDE = 30;
+const SQUARESTALL = 30;
 var MazeWalls;
 
 // For the middle squares of the maze, a 6 means part of the maze, a 5 means a part of the trail, and a 4 means not part of the maze or trail, 
@@ -69,31 +62,30 @@ function CreateSquareRow() {
 
 // Functions to create the trails in the maze
 function InitaliseRandomMazeSquare() {
-    var SquareX = Math.floor(Math.random() * SQUARESWIDE) * 2 + 1;
-    var SquareY = Math.floor(Math.random() * SQUARESTALL) * 2 + 1;
+    // Always initialise the bottom-right square for debugging, 
+    // Then, always start the 1st random walk from the top-left, that will be the solution
+    var SquareX = SQUARESWIDE * 2 - 1;
+    var SquareY = SQUARESTALL * 2 - 1;
     Maze[SquareY][SquareX] = 6;
-    console.log("Maze initailisation square at " + SquareX + ", " + SquareY);
 
     // Return the number of squares added to the maze (1)
     return 1;
 }
-function RandomWalk() {
+function RandomWalk(WantToLogTrail) {
     // Create a 2D array that stores the array co-ordinates of the squares in the random walk
     var RandomWalkCoordinates = [];
 
-    // Start at a random square
-    var SquareX = Math.floor(Math.random() * SQUARESWIDE) * 2 + 1;
-    var SquareY = Math.floor(Math.random() * SQUARESTALL) * 2 + 1;
+    // Start at the top-left square
+    var SquareX = 1;
+    var SquareY = 1;
 
-    // If the starting co-ordinates are already a part of the maze, keep trying until you find one that isnt
+    // If the starting co-ordinates are already a part of the maze, keep trying random ones until you find a square that isnt
     while (Maze[SquareY][SquareX] == 6) {
         SquareX = Math.floor(Math.random() * SQUARESWIDE) * 2 + 1;
         SquareY = Math.floor(Math.random() * SQUARESTALL) * 2 + 1;
     }
     Maze[SquareY][SquareX] = 5;
     RandomWalkCoordinates.push([SquareX, SquareY]);
-
-    console.log("Starting coordinates for the random walk at " + RandomWalkCoordinates[0]);
     
     var ReachedTheMaze = false;
     // Pick a random direction
@@ -151,7 +143,9 @@ function RandomWalk() {
                 RandomWalkCoordinates.push([SquareX, SquareY]);
         }
     }
-    console.log(RandomWalkCoordinates);
+    if (WantToLogTrail) {
+        console.log(RandomWalkCoordinates);
+    }
     
     // Iterate over the random walk array and change each square to part of the maze, 
     // and each wall to a gap by taking the average co-ordinates of two adjacent parts of the trail
@@ -214,46 +208,42 @@ function CreateMaze() {
     var NumberOfSquaresInMaze = SQUARESTALL * SQUARESWIDE;
     InitialiseMaze();
     NumberOfSquaresAddedToMaze += InitaliseRandomMazeSquare();
+
+    // For the first random walk, log the co-ordinates of the trail for debugging
+    if (NumberOfSquaresInMaze > 1) {
+        NumberOfSquaresAddedToMaze += RandomWalk(true);
+    }
     while (NumberOfSquaresAddedToMaze < NumberOfSquaresInMaze) {
-        NumberOfSquaresAddedToMaze += RandomWalk();
+        NumberOfSquaresAddedToMaze += RandomWalk(false);
     }
 }
-CreateMaze();
-console.log(Maze);
 
-// Setup function
-function setup() {
-    console.log("Setup started");
-
-    cnw = new Canvas(GameWidth, GameWidth);
-    world.gravity.y = 10;
-
-    //Player = new Sprite(500, 200, 100, 50, "d");
-
-    MazeWalls = new Group();
+// Functions to draw the maze
+function DrawMaze() {
+    CreateMaze();
+    console.log(Maze);
+    for (var i = 0; i < SQUARESTALL; i++) {
+        DrawHorisontalWalls(i * 2);
+        DrawVerticalWalls(i * 2 + 1);
+    }
+    DrawHorisontalWalls(SQUARESTALL * 2);
+}
+function DrawHorisontalWalls(MazeY) {
     for (var i = 0; i < SQUARESWIDE; i++) {
-        for (var j = 0; j < SQUARESTALL; j++) {
-            MakeWall(i, j, i, j);
-            //alert(i + " " + j + " " + i + " " + j + " ");
+        var WallValue = Maze[MazeY][i * 2 + 1];
+        if (WallValue == 2 || WallValue == 3) {
+            MakeWall(i, (Math.floor(MazeY / 2)), (i + 1), (Math.floor(MazeY / 2)));
         }
     }
-
-    // Make the walls
-    MakeWall(0, 0, SQUARESWIDE, 0);
-    MakeWall(SQUARESWIDE, 0, SQUARESWIDE, SQUARESTALL);
-    MakeWall(0, 0, 0, SQUARESTALL);
-    MakeWall(0, SQUARESTALL, SQUARESWIDE, SQUARESWIDE);
-
-    MakeWall(3, 0, 3, 2);
-    MakeWall(1, 1, 3, 1);
-    MakeWall(1, 2, 1, 3);
-    MakeWall(0, 2, 2, 2);
-    MakeWall(2, 2, 2, 3);
-    MakeWall(2, 3, 3, 3);
-
-    console.log("Setup finished");
 }
-
+function DrawVerticalWalls(MazeY) {
+    for (var i = 0; i <= SQUARESWIDE; i++) {
+        var WallValue = Maze[MazeY][i * 2];
+        if (WallValue == 2 || WallValue == 3) {
+            MakeWall(i, (Math.floor(MazeY / 2)), i, (Math.floor(MazeY / 2) + 1));
+        }
+    }
+}
 function MakeWall(StartingX, StartingY, EndingX, EndingY) {
     // Function that takes in two co-ordinates and make a wall between them
     // Make the grid a 21 by 21 square, and pass in points to that square
@@ -268,15 +258,49 @@ function MakeWall(StartingX, StartingY, EndingX, EndingY) {
 
     var WallX = HorisontalWallGap * StartingX + (HorisontalWallGap * EndingX - HorisontalWallGap * StartingX) / 2;
     var WallY = VerticalWallGap * StartingY + (VerticalWallGap * EndingY - VerticalWallGap * StartingY) / 2;
-    var WallEndX = HorisontalWallGap * EndingX - HorisontalWallGap * StartingX + MazeWallWidth;
-    var WallEndY = VerticalWallGap * EndingY - VerticalWallGap * StartingY + MazeWallWidth;
-    MazeWall = new Sprite(WallX, WallY, WallEndX, WallEndY, "k");
+    var WallWidth = HorisontalWallGap * EndingX - HorisontalWallGap * StartingX + MazeWallWidth;
+    var WallHeight = VerticalWallGap * EndingY - VerticalWallGap * StartingY + MazeWallWidth;
+    MazeWall = new Sprite(WallX, WallY, WallWidth, WallHeight, "k");
     MazeWall.color = "#6B5C7D";
 
     MazeWalls.add(MazeWall);
 }
 
+// Setup function
+function setup() {
+    console.log("Setup started");
 
+    cnw = new Canvas(GameWidth, GameHeight);
+
+    // Player sprite
+    var PlayerWidth =  0.5 * GameWidth / SQUARESWIDE - MazeWallWidth
+    var PlayerHeight = 0.5 * GameHeight / SQUARESTALL - MazeWallWidth
+    var PlayerStartingX = (GameWidth / SQUARESWIDE - PlayerWidth);
+    var PlayerStartingY = (GameHeight / SQUARESTALL - PlayerHeight);
+    Player = new Sprite(PlayerStartingX, PlayerStartingY, PlayerWidth, PlayerHeight, "d");
+
+    // Draw the walls
+    MazeWalls = new Group();
+    DrawMaze();
+    MazeWalls.color = MazeWallsColor;
+
+    console.log("Setup finished");
+}
+
+// Draw loop
 function draw() {
     background("#355C7D");
+    
+    // Controls
+    var PlayerSpeed = 0.2;
+    var PlayerMaxSpeed = 5;
+    if(kb.pressing('left') && Player.vel.x > -PlayerMaxSpeed) {
+		Player.vel.x -= PlayerSpeed;
+	} if (kb.pressing('right') && Player.vel.x < PlayerMaxSpeed) {
+		Player.vel.x += PlayerSpeed;
+	} if (kb.pressing('up') && Player.vel.y > -PlayerMaxSpeed) {
+		Player.vel.y -= PlayerSpeed;
+	} if (kb.pressing('down') && Player.vel.y < PlayerMaxSpeed) {
+		Player.vel.y += PlayerSpeed;
+	}
 }
