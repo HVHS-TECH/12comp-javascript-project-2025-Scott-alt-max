@@ -31,6 +31,7 @@ var MazeWalls;
                 [3, 4, 2, 4, 2, 4, 2, 4, 3],
                 [0, 3, 0, 3, 0, 3, 0, 3, 0]];*/
 
+// Functions to create the inital template of the maze, pictured above
 var Maze = [];
 function InitialiseMaze() {
     Maze.push(CreateWallRow(true));
@@ -65,6 +66,8 @@ function CreateSquareRow() {
     MazeRow.push(3);
     return MazeRow;
 }
+
+// Functions to create the trails in the maze
 function InitaliseRandomMazeSquare() {
     var SquareX = Math.floor(Math.random() * SQUARESWIDE) * 2 + 1;
     var SquareY = Math.floor(Math.random() * SQUARESTALL) * 2 + 1;
@@ -74,7 +77,6 @@ function InitaliseRandomMazeSquare() {
     // Return the number of squares added to the maze (1)
     return 1;
 }
-
 function RandomWalk() {
     // Create a 2D array that stores the array co-ordinates of the squares in the random walk
     var RandomWalkCoordinates = [];
@@ -91,7 +93,7 @@ function RandomWalk() {
     Maze[SquareY][SquareX] = 5;
     RandomWalkCoordinates.push([SquareX, SquareY]);
 
-    console.log("Starting coordinates at " + RandomWalkCoordinates[0]);
+    console.log("Starting coordinates for the random walk at " + RandomWalkCoordinates[0]);
     
     var ReachedTheMaze = false;
     // Pick a random direction
@@ -99,7 +101,6 @@ function RandomWalk() {
         switch (Math.floor(Math.random() * 4)) {
             case 0:
                 // Go up
-                console.log("Up");
 
                 // See if next wall is edge wall, if it is, restart with another direction
                 if (IsNextWallAnEdge(SquareX, (SquareY - 1))) { break; }
@@ -118,40 +119,34 @@ function RandomWalk() {
                 break;
             case 1:
                 // Go right
-                console.log("Right");
 
                 if (IsNextWallAnEdge((SquareX + 1), SquareY)) { break; }
                 if (IsNextSquarePartOfTrail((SquareX + 2), SquareY)) { Backtrack((SquareX + 2), SquareY); }
                 if (isNextSquarePartOfMaze((SquareX + 2), SquareY)) { ReachedTheMaze = true; }
 
                 SquareX += 2;
-                //RandomWalkCoordinates[RandomWalkCoordinates.length - 1][2] = "Right";
                 Maze[SquareY][SquareX] = 5;
                 RandomWalkCoordinates.push([SquareX, SquareY]);
                 break;
             case 2:
-                // Go down
-                console.log("Down");            
+                // Go down   
                 
                 if (IsNextWallAnEdge(SquareX, (SquareY + 1))) { break; }
                 if (IsNextSquarePartOfTrail(SquareX, (SquareY + 2))) { Backtrack(SquareX, (SquareY + 2)); }
                 if (isNextSquarePartOfMaze(SquareX, (SquareY + 2))) { ReachedTheMaze = true; }
 
                 SquareY += 2;
-                //RandomWalkCoordinates[RandomWalkCoordinates.length - 1][2] = "Down";
                 Maze[SquareY][SquareX] = 5;
                 RandomWalkCoordinates.push([SquareX, SquareY]);
                 break;
             case 3:
                 // Go left
-                console.log("Left");
 
                 if (IsNextWallAnEdge((SquareX - 1), SquareY)) { break; }
                 if (IsNextSquarePartOfTrail((SquareX - 2), SquareY)) { Backtrack((SquareX - 2), SquareY); }
                 if (isNextSquarePartOfMaze((SquareX - 2), SquareY)) {  ReachedTheMaze = true; }
                 
                 SquareX -= 2;
-                //RandomWalkCoordinates[RandomWalkCoordinates.length - 1][2] = "Left";
                 Maze[SquareY][SquareX] = 5;
                 RandomWalkCoordinates.push([SquareX, SquareY]);
         }
@@ -182,7 +177,6 @@ function RandomWalk() {
         // Also change those coordinates to not be a part of the trail anymore
         while ((RandomWalkCoordinates[RandomWalkCoordinates.length - 1][0] != targetX) || 
                 RandomWalkCoordinates[RandomWalkCoordinates.length - 1][1] != targetY) {
-            console.log("Backtracking");
             Maze[RandomWalkCoordinates[RandomWalkCoordinates.length - 1][1]][RandomWalkCoordinates[RandomWalkCoordinates.length - 1][0]] = 4;
             RandomWalkCoordinates.pop();
         }
@@ -192,7 +186,7 @@ function RandomWalk() {
 }
 function IsNextWallAnEdge(wallX, wallY) {
     if (Maze[wallY][wallX] == 3) {
-        console.log("Reached an edge");
+        // console.log("Reached an edge");
         return true;
     } else {
         return false;
@@ -200,7 +194,7 @@ function IsNextWallAnEdge(wallX, wallY) {
 }
 function IsNextSquarePartOfTrail(squareX, squareY) {
     if (Maze[squareY][squareX] == 5) {
-        console.log("Gone back to the trail");
+        // console.log("Gone back to the trail");
         return true;
     } else {
         return false;
@@ -208,16 +202,23 @@ function IsNextSquarePartOfTrail(squareX, squareY) {
 }
 function isNextSquarePartOfMaze(squareX, squareY) {
     if (Maze[squareY][squareX] == 6) {
-        console.log("Reached the a part of the maze");
+        // console.log("Reached the a part of the maze");
         return true;
     } else {
         return false;
     }
 }
-
-InitialiseMaze();
-InitaliseRandomMazeSquare();
-RandomWalk();
+function CreateMaze() {
+    // While there are still squares not part of the maze, keep doing the random walk function until the maze is finished
+    var NumberOfSquaresAddedToMaze = 0;
+    var NumberOfSquaresInMaze = SQUARESTALL * SQUARESWIDE;
+    InitialiseMaze();
+    NumberOfSquaresAddedToMaze += InitaliseRandomMazeSquare();
+    while (NumberOfSquaresAddedToMaze < NumberOfSquaresInMaze) {
+        NumberOfSquaresAddedToMaze += RandomWalk();
+    }
+}
+CreateMaze();
 console.log(Maze);
 
 // Setup function
