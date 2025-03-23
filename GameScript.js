@@ -3,13 +3,16 @@
 // Actually turn it into a playable game
 
 // Consts and Variables
-const GameWidth = 750;
-const GameHeight = 750;
+const GameWidth = 700;
+const GameHeight = 700;
 const MazeWallsColor = "Black";
-const MazeWallWidth = 2;
-const SQUARESWIDE = 1;
-const SQUARESTALL = 1;
+const MazeWallWidth = 0;
+var SQUARESWIDE = 0;
+var SQUARESTALL = 0;
 var MazeWalls;
+
+var PlayerSpeed = 0.2;
+var PlayerMaxSpeed = 5;
 
 // For the middle squares of the maze, a 6 means part of the maze, a 5 means a part of the trail, and a 4 means not part of the maze or trail, 
 // and for the walls, a 3 means an edge wall, a 2 means a wall, a 1 means a gap, and a 0 mean a corner
@@ -270,19 +273,16 @@ function MakeWall(StartingX, StartingY, EndingX, EndingY) {
 function EndGame() {
     console.log("Woo Hoo");
 }
-
-// Setup function
-function setup() {
-    console.log("Setup started");
-
-    cnw = new Canvas(GameWidth, GameHeight);
-
-    // var for the width of the squares
-    SquareWidth = GameWidth / SQUARESWIDE - MazeWallWidth;
-    SquareHeight = GameHeight / SQUARESTALL - MazeWallWidth;
-    // Player sprite
+function CreateSprites(squaresWide, squaresTall) {
+    // Change the squares wide and squares tall to the variables
+    SQUARESWIDE = squaresWide;
+    SQUARESTALL = squaresTall;
+    var SquareWidth = GameWidth / SQUARESWIDE - MazeWallWidth;
+    var SquareHeight = GameHeight / SQUARESTALL - MazeWallWidth;
     var PlayerWidth =  0.5 * SquareWidth;
     var PlayerHeight = 0.5 * SquareHeight;
+
+    // Player sprite
     var PlayerStartingX = (GameWidth / SQUARESWIDE - PlayerWidth);
     var PlayerStartingY = (GameHeight / SQUARESTALL - PlayerHeight);
     Player = new Sprite(PlayerStartingX, PlayerStartingY, PlayerWidth, PlayerHeight, "d");
@@ -298,6 +298,42 @@ function setup() {
     FinishSquare = new Sprite(GameWidth - PlayerWidth, GameHeight - PlayerHeight, SquareWidth, SquareHeight, "k");
     FinishSquare.color = "Green";
     FinishSquare.collides(Player, EndGame);
+}
+function CreateSmallMaze() {
+    CreateSprites(2, 2);
+}
+function CreateMediumMaze() {
+    CreateSprites(5, 5);
+}
+function CreateBigMaze() {
+    CreateSprites(20, 20);
+}
+function CreateStupidBigMaze() {
+    CreateSprites(200, 200);
+}
+
+// Setup function
+function setup() {
+    console.log("Setup started");
+
+    cnw = new Canvas(GameWidth, GameHeight);
+
+    // Create buttons to start the game
+    smallButton = createButton('CreateSmallMaze');
+    smallButton.position(0, 100);
+    smallButton.mousePressed(CreateSmallMaze);
+
+    smallButton = createButton('CreateMediumMaze');
+    smallButton.position(0, 120);
+    smallButton.mousePressed(CreateMediumMaze);
+    
+    smallButton = createButton('CreateBigMaze');
+    smallButton.position(0, 140);
+    smallButton.mousePressed(CreateBigMaze);
+    
+    smallButton = createButton('CreateStupidBigMaze');
+    smallButton.position(0, 160);
+    smallButton.mousePressed(CreateStupidBigMaze);
 
     console.log("Setup finished");
 }
@@ -307,8 +343,6 @@ function draw() {
     background("#355C7D");
     
     // Controls
-    var PlayerSpeed = 0.2;
-    var PlayerMaxSpeed = 5;
     if(kb.pressing('left') && Player.vel.x > -PlayerMaxSpeed) {
 		Player.vel.x -= PlayerSpeed;
 	} if (kb.pressing('right') && Player.vel.x < PlayerMaxSpeed) {
