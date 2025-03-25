@@ -1,12 +1,14 @@
 // TODO
+// Make the comments read better
 // Fix all other variable names to naming conventions
-// Actually turn it into a playable game
+// Make the game restart cleanly
+// Make the game actually look nice
 
 // Consts and Variables
 const GameWidth = 700;
 const GameHeight = 700;
 const MazeWallsColor = "Black";
-const MazeWallWidth = 0;
+const MazeWallWidth = 3;
 var SQUARESWIDE = 0;
 var SQUARESTALL = 0;
 var MazeWalls;
@@ -14,7 +16,9 @@ var MazeWalls;
 var PlayerSpeed = 0.2;
 var PlayerMaxSpeed = 5;
 
-// For the middle squares of the maze, a 6 means part of the maze, a 5 means a part of the trail, and a 4 means not part of the maze or trail, 
+var GameState = 0;
+
+// For the middle squares of the maze, a 6 means part of the maze, a 5 means a part of the trail, and a 4 means not part of the maze or trail,
 // and for the walls, a 3 means an edge wall, a 2 means a wall, a 1 means a gap, and a 0 mean a corner
 // Example 4 by 4 maze:
 /* var Maze =  [[0, 3, 0, 3, 0, 3, 0, 3, 0],
@@ -230,30 +234,27 @@ function DrawMaze() {
         DrawVerticalWalls(i * 2 + 1);
     }
     DrawHorisontalWalls(SQUARESTALL * 2);
-}
-function DrawHorisontalWalls(MazeY) {
-    for (var i = 0; i < SQUARESWIDE; i++) {
-        var WallValue = Maze[MazeY][i * 2 + 1];
-        if (WallValue == 2 || WallValue == 3) {
-            MakeWall(i, (Math.floor(MazeY / 2)), (i + 1), (Math.floor(MazeY / 2)));
+    
+    function DrawHorisontalWalls(MazeY) {
+        for (var i = 0; i < SQUARESWIDE; i++) {
+            var WallValue = Maze[MazeY][i * 2 + 1];
+            if (WallValue == 2 || WallValue == 3) {
+                MakeWall(i, (Math.floor(MazeY / 2)), (i + 1), (Math.floor(MazeY / 2)));
+            }
         }
     }
-}
-function DrawVerticalWalls(MazeY) {
-    for (var i = 0; i <= SQUARESWIDE; i++) {
-        var WallValue = Maze[MazeY][i * 2];
-        if (WallValue == 2 || WallValue == 3) {
-            MakeWall(i, (Math.floor(MazeY / 2)), i, (Math.floor(MazeY / 2) + 1));
+    function DrawVerticalWalls(MazeY) {
+        for (var i = 0; i <= SQUARESWIDE; i++) {
+            var WallValue = Maze[MazeY][i * 2];
+            if (WallValue == 2 || WallValue == 3) {
+                MakeWall(i, (Math.floor(MazeY / 2)), i, (Math.floor(MazeY / 2) + 1));
+            }
         }
     }
 }
 function MakeWall(StartingX, StartingY, EndingX, EndingY) {
     // Function that takes in two co-ordinates and make a wall between them
     // Make the grid a 21 by 21 square, and pass in points to that square
-
-    // Check for ArgumentOutOfBounds
-    // Check for Ending being below the starting coordinates
-
 
     // Create new sprite
     var HorisontalWallGap = GameWidth / SQUARESWIDE;
@@ -267,11 +268,6 @@ function MakeWall(StartingX, StartingY, EndingX, EndingY) {
     MazeWall.color = "#6B5C7D";
 
     MazeWalls.add(MazeWall);
-}
-
-// Function to end the game when the player collides with the finish square
-function EndGame() {
-    console.log("Woo Hoo");
 }
 function CreateSprites(squaresWide, squaresTall) {
     // Change the squares wide and squares tall to the variables
@@ -288,28 +284,63 @@ function CreateSprites(squaresWide, squaresTall) {
     Player = new Sprite(PlayerStartingX, PlayerStartingY, PlayerWidth, PlayerHeight, "d");
     Player.color = "#FF69B4";
 
+    // Make the finish square
+    FinishSquare = new Sprite(GameWidth - PlayerWidth, GameHeight - PlayerHeight, SquareWidth, SquareHeight, "k");
+    FinishSquare.color = "Green";
+    FinishSquare.strokeWeight = 0;
+    FinishSquare.collides(Player, EndGame);
+    
     // Draw the walls
     MazeWalls = new Group();
     DrawMaze();
     MazeWalls.color = MazeWallsColor;
-    //MazeWalls.bounciness = 2;
-
-    // Make the finish square
-    FinishSquare = new Sprite(GameWidth - PlayerWidth, GameHeight - PlayerHeight, SquareWidth, SquareHeight, "k");
-    FinishSquare.color = "Green";
-    FinishSquare.collides(Player, EndGame);
 }
 function CreateSmallMaze() {
+    RemoveButtons();
     CreateSprites(2, 2);
 }
 function CreateMediumMaze() {
+    RemoveButtons();
     CreateSprites(5, 5);
 }
 function CreateBigMaze() {
+    RemoveButtons();
     CreateSprites(20, 20);
 }
 function CreateStupidBigMaze() {
-    CreateSprites(200, 200);
+    RemoveButtons();
+    CreateSprites(50, 50);
+}
+function MakeButtons() {
+    // Create buttons to start the game
+    smallButton = createButton('CreateSmallMaze');
+    smallButton.position(0, 100);
+    smallButton.mousePressed(CreateSmallMaze);
+
+    mediumButton = createButton('CreateMediumMaze');
+    mediumButton.position(0, 120);
+    mediumButton.mousePressed(CreateMediumMaze);
+    
+    bigButton = createButton('CreateBigMaze');
+    bigButton.position(0, 140);
+    bigButton.mousePressed(CreateBigMaze);
+    
+    stupidBigButton = createButton('CreateStupidBigMaze');
+    stupidBigButton.position(0, 160);
+    stupidBigButton.mousePressed(CreateStupidBigMaze);
+}
+function RemoveButtons() {
+    smallButton.remove();
+    mediumButton.remove();
+    bigButton.remove();
+    stupidBigButton.remove();
+}
+function EndGame() {
+    // Remove the sprites
+    MazeWalls.remove();
+    Player.remove();
+    FinishSquare.remove();
+    MakeButtons();
 }
 
 // Setup function
@@ -318,23 +349,7 @@ function setup() {
 
     cnw = new Canvas(GameWidth, GameHeight);
 
-    // Create buttons to start the game
-    smallButton = createButton('CreateSmallMaze');
-    smallButton.position(0, 100);
-    smallButton.mousePressed(CreateSmallMaze);
-
-    smallButton = createButton('CreateMediumMaze');
-    smallButton.position(0, 120);
-    smallButton.mousePressed(CreateMediumMaze);
-    
-    smallButton = createButton('CreateBigMaze');
-    smallButton.position(0, 140);
-    smallButton.mousePressed(CreateBigMaze);
-    
-    smallButton = createButton('CreateStupidBigMaze');
-    smallButton.position(0, 160);
-    smallButton.mousePressed(CreateStupidBigMaze);
-
+    MakeButtons();
     console.log("Setup finished");
 }
 
@@ -342,14 +357,26 @@ function setup() {
 function draw() {
     background("#355C7D");
     
-    // Controls
-    if(kb.pressing('left') && Player.vel.x > -PlayerMaxSpeed) {
-		Player.vel.x -= PlayerSpeed;
-	} if (kb.pressing('right') && Player.vel.x < PlayerMaxSpeed) {
-		Player.vel.x += PlayerSpeed;
-	} if (kb.pressing('up') && Player.vel.y > -PlayerMaxSpeed) {
-		Player.vel.y -= PlayerSpeed;
-	} if (kb.pressing('down') && Player.vel.y < PlayerMaxSpeed) {
-		Player.vel.y += PlayerSpeed;
-	}
+    switch (GameState) {
+        case 0:
+            // Game hasn't started yet
+        case 1:
+            // Game is running
+            
+            // Controls
+            if(kb.pressing('left') && Player.vel.x > -PlayerMaxSpeed) {
+                Player.vel.x -= PlayerSpeed;
+            } if (kb.pressing('right') && Player.vel.x < PlayerMaxSpeed) {
+                Player.vel.x += PlayerSpeed;
+            } if (kb.pressing('up') && Player.vel.y > -PlayerMaxSpeed) {
+                Player.vel.y -= PlayerSpeed;
+            } if (kb.pressing('down') && Player.vel.y < PlayerMaxSpeed) {
+                Player.vel.y += PlayerSpeed;
+            }
+        case 2:
+            // Game has finished
+        default:
+            // Throw an error is gamestate is none of the above
+    }
+    
 }
