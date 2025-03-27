@@ -5,8 +5,9 @@
 // Make the game actually look nice
 
 // Consts and Variables
-const GameWidth = 700;
-const GameHeight = 700;
+// Math.min(windowWidth, windowHeight);
+const GameWidth = windowWidth;
+const GameHeight = windowHeight;
 const MazeWallsColor = "Black";
 const MazeWallWidth = 3;
 var SQUARESWIDE = 0;
