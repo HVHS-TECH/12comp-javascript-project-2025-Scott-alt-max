@@ -6,8 +6,8 @@
 
 // Consts and Variables
 // Math.min(windowWidth, windowHeight);
-const GameWidth = windowWidth;
-const GameHeight = windowHeight;
+const GameWidth = 700;
+const GameHeight = 700;
 const MazeWallsColor = "Black";
 const MazeWallWidth = 3;
 var SQUARESWIDE = 0;
@@ -70,7 +70,6 @@ function InitialiseMaze() {
     }
 }
 
-
 // Functions to create the trails in the maze
 function InitaliseRandomMazeSquare() {
     // Always initialise the bottom-right square for debugging, 
@@ -98,9 +97,10 @@ function RandomWalk(WantToLogTrail) {
     Maze[SquareY][SquareX] = 5;
     RandomWalkCoordinates.push([SquareX, SquareY]);
     
+    // Keep walking around the maze until the trail reaches the maze
     var ReachedTheMaze = false;
-    // Pick a random direction
     while (!ReachedTheMaze) {
+        // Pick a random direction
         switch (Math.floor(Math.random() * 4)) {
             case 0:
                 // Go up
@@ -301,35 +301,35 @@ function CreateSprites(squaresWide, squaresTall) {
     DrawMaze();
     MazeWalls.color = MazeWallsColor;
 }
-function CreateSmallMaze() {
+function CreateSmallGame() {
     StartGame(2, 2);
 }
-function CreateMediumMaze() {
+function CreateMediumGame() {
     StartGame(5, 5);
 }
-function CreateBigMaze() {
+function CreateBigGame() {
     StartGame(20, 20);
 }
-function CreateStupidBigMaze() {
+function CreateStupidBigGame() {
     StartGame(50, 50);
 }
 function MakeButtons() {
     // Create buttons to start the game
-    smallButton = createButton('CreateSmallMaze');
+    smallButton = createButton('CreateSmallGame');
     smallButton.position(0, 100);
-    smallButton.mousePressed(CreateSmallMaze);
+    smallButton.mousePressed(CreateSmallGame);
 
-    mediumButton = createButton('CreateMediumMaze');
+    mediumButton = createButton('CreateMediumGame');
     mediumButton.position(0, 120);
-    mediumButton.mousePressed(CreateMediumMaze);
+    mediumButton.mousePressed(CreateMediumGame);
     
-    bigButton = createButton('CreateBigMaze');
+    bigButton = createButton('CreateBigGame');
     bigButton.position(0, 140);
-    bigButton.mousePressed(CreateBigMaze);
+    bigButton.mousePressed(CreateBigGame);
     
-    stupidBigButton = createButton('CreateStupidBigMaze');
+    stupidBigButton = createButton('CreateStupidBigGame');
     stupidBigButton.position(0, 160);
-    stupidBigButton.mousePressed(CreateStupidBigMaze);
+    stupidBigButton.mousePressed(CreateStupidBigGame);
 }
 function StartGame(MazeSquaresWide, MazeSquaresTall) {
     // Remove the buttons
@@ -384,7 +384,7 @@ function draw() {
                 Player.vel.y -= PlayerSpeed;
             } if (kb.pressing('down') && Player.vel.y < PlayerMaxSpeed) {
                 Player.vel.y += PlayerSpeed;
-            } 
+            }
             
             // Restart game
             if (kb.pressing('r')) {
