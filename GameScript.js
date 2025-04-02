@@ -1,12 +1,15 @@
 // TODO
 // Make the comments read better
 // Fix all other variable names to naming conventions
-// Make the game restart cleanly
 // Make the game actually look nice
+// Tell the user how many seconds they had left
+// Combine the endgame function and the wingame function by checking how many seconds they have left
+// Add air friction
 
 // Consts and Variables
 // Math.min(windowWidth, windowHeight);
 const GameWidth = 700;
+const InformationPanelSize = 150;
 const GameHeight = 700;
 const MazeWallsColor = "Black";
 const MazeWallWidth = 3;
@@ -17,7 +20,12 @@ var MazeWalls;
 var PlayerSpeed = 0.2;
 var PlayerMaxSpeed = 5;
 
+// Game variables
 var GameState = 0;
+const GAMESECONDS = 2;
+const TEXTSIZE = 25;
+var StartTime;
+var SecondsLeft;
 
 // For the middle squares of the maze, a 6 means part of the maze, a 5 means a part of the trail, and a 4 means not part of the maze or trail,
 // and for the walls, a 3 means an edge wall, a 2 means a wall, a 1 means a gap, and a 0 mean a corner
@@ -294,7 +302,7 @@ function CreateSprites(squaresWide, squaresTall) {
     FinishSquare = new Sprite(GameWidth - PlayerWidth, GameHeight - PlayerHeight, SquareWidth, SquareHeight, "k");
     FinishSquare.color = "Green";
     FinishSquare.strokeWeight = 0;
-    FinishSquare.collides(Player, EndGame);
+    FinishSquare.collides(Player, WinGame);
     
     // Draw the walls
     MazeWalls = new Group();
@@ -341,24 +349,28 @@ function StartGame(MazeSquaresWide, MazeSquaresTall) {
     // Change the gamestate to 1
     GameState = 1;
 
+    // Start the timer
+    StartTime = millis();
     // Make the sprites
     CreateSprites(MazeSquaresWide, MazeSquaresTall);
 }
-function EndGame() {
+function WinGame(){
+    EndGame(2);
+}
+function EndGame(gameState) {
     // Remove the sprites
     MazeWalls.remove();
     Player.remove();
     FinishSquare.remove();
     
-    GameState = 2;
+    GameState = gameState;
     MakeButtons();
 }
-
 // Setup function
 function setup() {
     console.log("Setup started");
 
-    cnw = new Canvas(GameWidth, GameHeight);
+    cnw = new Canvas(GameWidth + InformationPanelSize, GameHeight);
 
     MakeButtons();
     console.log("Setup finished");
@@ -367,14 +379,24 @@ function setup() {
 // Draw loop
 function draw() {
     background("#355C7D");
-    console.log(GameState);
+    // console.log(GameState);
     switch (GameState) {
         case 0:
             // Game hasn't started yet
+	        textSize(TEXTSIZE);
+            textAlign(CENTER, TOP);
+            text("W, A, S, D to move", (GameWidth + InformationPanelSize) / 2, GameHeight / 2 - (TEXTSIZE + 5));
+            text("Try to get from the top-left, to the bottom-right", (GameWidth + InformationPanelSize) / 2, GameHeight / 2);
+            text("Press 'r' to restart", (GameWidth + InformationPanelSize) / 2, GameHeight / 2 + (TEXTSIZE + 5));
             break;
         case 1:
             // Game is running
-            
+	        textSize(TEXTSIZE * 1.5);
+            textAlign(CENTER, TOP);
+            text("Time:", GameWidth + (InformationPanelSize / 2), 15);
+	        textSize(TEXTSIZE * 4);
+            text(GAMESECONDS - Math.floor((millis() - StartTime)/1000), GameWidth + (InformationPanelSize / 2), TEXTSIZE * 1.5 + 20);
+
             // Controls
             if(kb.pressing('left') && Player.vel.x > -PlayerMaxSpeed) {
                 Player.vel.x -= PlayerSpeed;
@@ -386,13 +408,26 @@ function draw() {
                 Player.vel.y += PlayerSpeed;
             }
             
-            // Restart game
-            if (kb.pressing('r')) {
-                EndGame();
+            // Check if the game is over, or that the user has pressed restart (r)
+            if((millis() - StartTime) >= GAMESECONDS * 1000 - 100) {
+                console.log("Game Over");
+                EndGame(3);
+            } if (kb.pressing('r')) {
+                console.log("Restarting Game");
+                EndGame(0);
             }
             break;
         case 2:
-            // Game has finished
+            // Game has finished, player won
+	        textSize(TEXTSIZE);
+            textAlign(CENTER, CENTER);
+            text("You Won", (GameWidth + InformationPanelSize) / 2, GameHeight / 2);
+            break;
+        case 3:
+            // Game has finished, player lost
+            textSize(TEXTSIZE);
+            textAlign(CENTER, CENTER);
+            text("You Lost", (GameWidth + InformationPanelSize) / 2, GameHeight / 2);
             break;
         default:
             // Throw an error is gamestate is none of the above
