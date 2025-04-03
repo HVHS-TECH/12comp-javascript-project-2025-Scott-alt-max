@@ -22,7 +22,7 @@ var PlayerMaxSpeed = 5;
 
 // Game variables
 var GameState = 0;
-const GAMESECONDS = 2;
+var GameSeconds = 2;
 const TEXTSIZE = 25;
 var StartTime;
 var SecondsLeft;
@@ -310,16 +310,34 @@ function CreateSprites(squaresWide, squaresTall) {
     MazeWalls.color = MazeWallsColor;
 }
 function CreateSmallGame() {
-    StartGame(2, 2);
+    StartGame(2, 2, 3);
 }
 function CreateMediumGame() {
-    StartGame(5, 5);
+    StartGame(5, 5, 7);
 }
 function CreateBigGame() {
-    StartGame(20, 20);
+    StartGame(20, 20, 25);
 }
 function CreateStupidBigGame() {
-    StartGame(50, 50);
+    StartGame(50, 50, 60);
+}
+function StartGame(MazeSquaresWide, MazeSquaresTall, gameSeconds) {
+    // Set the time for how long the game runs
+    GameSeconds = gameSeconds;
+
+    // Remove the buttons
+    smallButton.remove();
+    mediumButton.remove();
+    bigButton.remove();
+    stupidBigButton.remove();
+
+    // Change the gamestate to 1
+    GameState = 1;
+
+    // Start the timer
+    StartTime = millis();
+    // Make the sprites
+    CreateSprites(MazeSquaresWide, MazeSquaresTall);
 }
 function MakeButtons() {
     // Create buttons to start the game
@@ -339,21 +357,6 @@ function MakeButtons() {
     stupidBigButton.position(0, 160);
     stupidBigButton.mousePressed(CreateStupidBigGame);
 }
-function StartGame(MazeSquaresWide, MazeSquaresTall) {
-    // Remove the buttons
-    smallButton.remove();
-    mediumButton.remove();
-    bigButton.remove();
-    stupidBigButton.remove();
-
-    // Change the gamestate to 1
-    GameState = 1;
-
-    // Start the timer
-    StartTime = millis();
-    // Make the sprites
-    CreateSprites(MazeSquaresWide, MazeSquaresTall);
-}
 function WinGame(){
     EndGame(2);
 }
@@ -362,7 +365,8 @@ function EndGame(gameState) {
     MazeWalls.remove();
     Player.remove();
     FinishSquare.remove();
-    
+
+    SecondsLeft = Math.ceil(GameSeconds - 0.1 - (millis() - StartTime)/1000);
     GameState = gameState;
     MakeButtons();
 }
@@ -383,19 +387,24 @@ function draw() {
     switch (GameState) {
         case 0:
             // Game hasn't started yet
+            // Show the text for the start screen
 	        textSize(TEXTSIZE);
             textAlign(CENTER, TOP);
-            text("W, A, S, D to move", (GameWidth + InformationPanelSize) / 2, GameHeight / 2 - (TEXTSIZE + 5));
-            text("Try to get from the top-left, to the bottom-right", (GameWidth + InformationPanelSize) / 2, GameHeight / 2);
-            text("Press 'r' to restart", (GameWidth + InformationPanelSize) / 2, GameHeight / 2 + (TEXTSIZE + 5));
+            text("W, A, S, D to move", (GameWidth + InformationPanelSize) / 2, GameHeight / 2 - (TEXTSIZE + 25));
+            text("Try to get from the top-left, to the bottom-right,", (GameWidth + InformationPanelSize) / 2, GameHeight / 2);
+            text("in the amount of time given", (GameWidth + InformationPanelSize) / 2, GameHeight / 2 + (TEXTSIZE + 5));
+            text("Press 'r' to restart", (GameWidth + InformationPanelSize) / 2, GameHeight / 2 + (TEXTSIZE * 2 + 30));
             break;
         case 1:
             // Game is running
-	        textSize(TEXTSIZE * 1.5);
+	        textSize(TEXTSIZE);
             textAlign(CENTER, TOP);
             text("Time:", GameWidth + (InformationPanelSize / 2), 15);
 	        textSize(TEXTSIZE * 4);
-            text(GAMESECONDS - Math.floor((millis() - StartTime)/1000), GameWidth + (InformationPanelSize / 2), TEXTSIZE * 1.5 + 20);
+            text(GameSeconds - Math.floor((millis() - StartTime)/1000), GameWidth + (InformationPanelSize / 2), TEXTSIZE * 1.5 + 20);
+
+	        textSize(TEXTSIZE);
+            text("Restart: 'r'", GameWidth + (InformationPanelSize / 2), TEXTSIZE * 8);
 
             // Controls
             if(kb.pressing('left') && Player.vel.x > -PlayerMaxSpeed) {
@@ -409,7 +418,7 @@ function draw() {
             }
             
             // Check if the game is over, or that the user has pressed restart (r)
-            if((millis() - StartTime) >= GAMESECONDS * 1000 - 100) {
+            if((millis() - StartTime) >= GameSeconds * 1000 - 100) {
                 console.log("Game Over");
                 EndGame(3);
             } if (kb.pressing('r')) {
@@ -422,12 +431,14 @@ function draw() {
 	        textSize(TEXTSIZE);
             textAlign(CENTER, CENTER);
             text("You Won", (GameWidth + InformationPanelSize) / 2, GameHeight / 2);
+            text("You had " + SecondsLeft + " seconds left", (GameWidth + InformationPanelSize) / 2, GameHeight / 2 + TEXTSIZE + 5);
             break;
         case 3:
             // Game has finished, player lost
             textSize(TEXTSIZE);
             textAlign(CENTER, CENTER);
             text("You Lost", (GameWidth + InformationPanelSize) / 2, GameHeight / 2);
+            text("You had " + SecondsLeft + " seconds left", (GameWidth + InformationPanelSize) / 2, GameHeight / 2 + TEXTSIZE + 5);
             break;
         default:
             // Throw an error is gamestate is none of the above
