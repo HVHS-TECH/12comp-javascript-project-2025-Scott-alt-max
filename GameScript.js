@@ -2,8 +2,6 @@
 // Make the comments read better
 // Fix all other variable names to naming conventions
 // Make the game actually look nice
-// Tell the user how many seconds they had left
-// Combine the endgame function and the wingame function by checking how many seconds they have left
 // Add air friction
 
 // Consts and Variables
@@ -222,6 +220,7 @@ function RandomWalk(WantToLogTrail) {
     }
 }
 
+// Initialise the maze and create all the paths in it
 function CreateMaze() {
     // While there are still squares not part of the maze, keep doing the random walk function until the maze is finished
     var NumberOfSquaresAddedToMaze = 0;
@@ -283,6 +282,7 @@ function DrawMaze() {
     }
 }
 
+// Create all of the sprites
 function CreateSprites(squaresWide, squaresTall) {
     // Change the squares wide and squares tall to the variables
     SQUARESWIDE = squaresWide;
@@ -303,23 +303,14 @@ function CreateSprites(squaresWide, squaresTall) {
     FinishSquare.color = "Green";
     FinishSquare.strokeWeight = 0;
     FinishSquare.collides(Player, WinGame);
-    
+    function WinGame() {
+        EndGame(2);
+    }
+
     // Draw the walls
     MazeWalls = new Group();
     DrawMaze();
     MazeWalls.color = MazeWallsColor;
-}
-function CreateSmallGame() {
-    StartGame(2, 2, 3);
-}
-function CreateMediumGame() {
-    StartGame(5, 5, 7);
-}
-function CreateBigGame() {
-    StartGame(20, 20, 25);
-}
-function CreateStupidBigGame() {
-    StartGame(50, 50, 60);
 }
 function StartGame(MazeSquaresWide, MazeSquaresTall, gameSeconds) {
     // Set the time for how long the game runs
@@ -331,13 +322,24 @@ function StartGame(MazeSquaresWide, MazeSquaresTall, gameSeconds) {
     bigButton.remove();
     stupidBigButton.remove();
 
-    // Change the gamestate to 1
+    // Change the gamestate to 1 (Running)
     GameState = 1;
 
     // Start the timer
     StartTime = millis();
+
     // Make the sprites
     CreateSprites(MazeSquaresWide, MazeSquaresTall);
+}
+function EndGame(gameState) {
+    // Remove the sprites
+    MazeWalls.remove();
+    Player.remove();
+    FinishSquare.remove();
+
+    SecondsLeft = Math.ceil(GameSeconds - 0.1 - (millis() - StartTime)/1000);
+    GameState = gameState;
+    MakeButtons();
 }
 function MakeButtons() {
     // Create buttons to start the game
@@ -356,34 +358,34 @@ function MakeButtons() {
     stupidBigButton = createButton('CreateStupidBigGame');
     stupidBigButton.position(0, 160);
     stupidBigButton.mousePressed(CreateStupidBigGame);
-}
-function WinGame(){
-    EndGame(2);
-}
-function EndGame(gameState) {
-    // Remove the sprites
-    MazeWalls.remove();
-    Player.remove();
-    FinishSquare.remove();
 
-    SecondsLeft = Math.ceil(GameSeconds - 0.1 - (millis() - StartTime)/1000);
-    GameState = gameState;
-    MakeButtons();
+    function CreateSmallGame() {
+        StartGame(2, 2, 3);
+    }
+    function CreateMediumGame() {
+        StartGame(5, 5, 7);
+    }
+    function CreateBigGame() {
+        StartGame(20, 20, 25);
+    }
+    function CreateStupidBigGame() {
+        StartGame(50, 50, 60);
+    }
 }
+
 // Setup function
 function setup() {
     console.log("Setup started");
 
     cnw = new Canvas(GameWidth + InformationPanelSize, GameHeight);
-
     MakeButtons();
+
     console.log("Setup finished");
 }
 
 // Draw loop
 function draw() {
     background("#355C7D");
-    // console.log(GameState);
     switch (GameState) {
         case 0:
             // Game hasn't started yet
@@ -402,10 +404,10 @@ function draw() {
             text("Time:", GameWidth + (InformationPanelSize / 2), 15);
 	        textSize(TEXTSIZE * 4);
             text(GameSeconds - Math.floor((millis() - StartTime)/1000), GameWidth + (InformationPanelSize / 2), TEXTSIZE * 1.5 + 20);
-
+            
 	        textSize(TEXTSIZE);
             text("Restart: 'r'", GameWidth + (InformationPanelSize / 2), TEXTSIZE * 8);
-
+            
             // Controls
             if(kb.pressing('left') && Player.vel.x > -PlayerMaxSpeed) {
                 Player.vel.x -= PlayerSpeed;
@@ -442,6 +444,6 @@ function draw() {
             break;
         default:
             // Throw an error is gamestate is none of the above
+            console.log("GameState varibale is invalid");
     }
-    
 }
