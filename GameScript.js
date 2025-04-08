@@ -20,10 +20,10 @@ var PlayerMaxSpeed = 5;
 
 // Game variables
 var GameState = 0;
-var GameSeconds = 2;
 const TEXTSIZE = 25;
-var StartTime;
+var GameSeconds = 2;
 var SecondsLeft;
+var CurrentFrame = 0;
 
 // For the middle squares of the maze, a 6 means part of the maze, a 5 means a part of the trail, and a 4 means not part of the maze or trail,
 // and for the walls, a 3 means an edge wall, a 2 means a wall, a 1 means a gap, and a 0 mean a corner
@@ -296,6 +296,7 @@ function CreateSprites(squaresWide, squaresTall) {
     var PlayerStartingX = (GameWidth / SQUARESWIDE - PlayerWidth);
     var PlayerStartingY = (GameHeight / SQUARESTALL - PlayerHeight);
     Player = new Sprite(PlayerStartingX, PlayerStartingY, PlayerWidth, PlayerHeight, "d");
+    Player.strokeWeight = 0;
     Player.color = "#FF69B4";
 
     // Make the finish square
@@ -326,7 +327,7 @@ function StartGame(MazeSquaresWide, MazeSquaresTall, gameSeconds) {
     GameState = 1;
 
     // Start the timer
-    StartTime = millis();
+    SecondsLeft = GameSeconds;
 
     // Make the sprites
     CreateSprites(MazeSquaresWide, MazeSquaresTall);
@@ -336,8 +337,6 @@ function EndGame(gameState) {
     MazeWalls.remove();
     Player.remove();
     FinishSquare.remove();
-
-    SecondsLeft = Math.ceil(GameSeconds - 0.1 - (millis() - StartTime)/1000);
     GameState = gameState;
     MakeButtons();
 }
@@ -369,7 +368,7 @@ function MakeButtons() {
         StartGame(20, 20, 25);
     }
     function CreateStupidBigGame() {
-        StartGame(50, 50, 60);
+        StartGame(50, 60, 60);
     }
 }
 
@@ -399,11 +398,31 @@ function draw() {
             break;
         case 1:
             // Game is running
+
+            // Timer
+            CurrentFrame++;
+            if(CurrentFrame == 60) {
+                SecondsLeft--;
+                CurrentFrame = 0;
+            }
+
+            // Check if the game is over, or that the user has pressed restart (r)
+            if(SecondsLeft == 0) {
+                console.log("Game Over");
+                EndGame(3);
+                break;
+            } if (kb.pressing('r')) {
+                console.log("Restarting Game");
+                EndGame(0);
+                break;
+            }
+
+            // Text
 	        textSize(TEXTSIZE);
             textAlign(CENTER, TOP);
             text("Time:", GameWidth + (InformationPanelSize / 2), 15);
 	        textSize(TEXTSIZE * 4);
-            text(GameSeconds - Math.floor((millis() - StartTime)/1000), GameWidth + (InformationPanelSize / 2), TEXTSIZE * 1.5 + 20);
+            text(SecondsLeft, GameWidth + (InformationPanelSize / 2), TEXTSIZE * 1.5 + 20);
             
 	        textSize(TEXTSIZE);
             text("Restart: 'r'", GameWidth + (InformationPanelSize / 2), TEXTSIZE * 8);
@@ -417,15 +436,6 @@ function draw() {
                 Player.vel.y -= PlayerSpeed;
             } if (kb.pressing('down') && Player.vel.y < PlayerMaxSpeed) {
                 Player.vel.y += PlayerSpeed;
-            }
-            
-            // Check if the game is over, or that the user has pressed restart (r)
-            if((millis() - StartTime) >= GameSeconds * 1000 - 100) {
-                console.log("Game Over");
-                EndGame(3);
-            } if (kb.pressing('r')) {
-                console.log("Restarting Game");
-                EndGame(0);
             }
             break;
         case 2:
