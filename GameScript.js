@@ -5,14 +5,13 @@
 // Add air friction
 
 // Consts and Variables
-// Math.min(windowWidth, windowHeight);
-const GameWidth = 700;
-const InformationPanelSize = 150;
-const GameHeight = 700;
-const MazeWallsColor = "Black";
-const MazeWallWidth = 3;
-var SQUARESWIDE = 0;
-var SQUARESTALL = 0;
+const INFORMATIONPANELWIDTH = 150;
+const GAMEWIDTH = Math.min(window.innerWidth * 0.7, window.innerHeight * 0.7);
+const GAMEHEIGHT = Math.min(window.innerWidth * 0.7, window.innerHeight * 0.7);
+const MAZEWALLCOLOR = "Black";
+const MAZEWALLWIDTH = 3;
+var SquaresWide = 0;
+var SquaresTall = 0;
 var MazeWalls;
 
 var PlayerSpeed = 0.2;
@@ -44,7 +43,7 @@ function InitialiseMaze() {
     Maze.length = 0;
     Maze.push(CreateWallRow(true));
     Maze.push(CreateSquareRow());
-    for (var i = 0; i < SQUARESTALL - 1; i++) {
+    for (var i = 0; i < SquaresTall - 1; i++) {
         Maze.push(CreateWallRow(false));
         Maze.push(CreateSquareRow());
     }
@@ -52,7 +51,7 @@ function InitialiseMaze() {
 
     function CreateWallRow(IsTopOrBottomWall) {
         var MazeRow = [];
-        for (var i = 0; i < SQUARESWIDE; i++) {
+        for (var i = 0; i < SquaresWide; i++) {
             MazeRow.push(0);
             if (IsTopOrBottomWall) {
                 MazeRow.push(3);
@@ -67,7 +66,7 @@ function InitialiseMaze() {
         var MazeRow = [];
         MazeRow.push(3);
         MazeRow.push(4);
-        for (var i = 0; i < SQUARESWIDE - 1; i++) {
+        for (var i = 0; i < SquaresWide - 1; i++) {
             MazeRow.push(2);
             MazeRow.push(4);
         }
@@ -80,8 +79,8 @@ function InitialiseMaze() {
 function InitaliseRandomMazeSquare() {
     // Always initialise the bottom-right square for debugging, 
     // Then, always start the 1st random walk from the top-left, that will be the solution
-    var SquareX = SQUARESWIDE * 2 - 1;
-    var SquareY = SQUARESTALL * 2 - 1;
+    var SquareX = SquaresWide * 2 - 1;
+    var SquareY = SquaresTall * 2 - 1;
     Maze[SquareY][SquareX] = 6;
 
     // Return the number of squares added to the maze (1)
@@ -97,8 +96,8 @@ function RandomWalk(WantToLogTrail) {
 
     // If the starting co-ordinates are already a part of the maze, keep trying random ones until you find a square that isnt
     while (Maze[SquareY][SquareX] == 6) {
-        SquareX = Math.floor(Math.random() * SQUARESWIDE) * 2 + 1;
-        SquareY = Math.floor(Math.random() * SQUARESTALL) * 2 + 1;
+        SquareX = Math.floor(Math.random() * SquaresWide) * 2 + 1;
+        SquareY = Math.floor(Math.random() * SquaresTall) * 2 + 1;
     }
     Maze[SquareY][SquareX] = 5;
     RandomWalkCoordinates.push([SquareX, SquareY]);
@@ -224,7 +223,7 @@ function RandomWalk(WantToLogTrail) {
 function CreateMaze() {
     // While there are still squares not part of the maze, keep doing the random walk function until the maze is finished
     var NumberOfSquaresAddedToMaze = 0;
-    var NumberOfSquaresInMaze = SQUARESTALL * SQUARESWIDE;
+    var NumberOfSquaresInMaze = SquaresTall * SquaresWide;
     InitialiseMaze();
     NumberOfSquaresAddedToMaze += InitaliseRandomMazeSquare();
 
@@ -241,14 +240,14 @@ function CreateMaze() {
 function DrawMaze() {
     CreateMaze();
     console.log(Maze);
-    for (var i = 0; i < SQUARESTALL; i++) {
+    for (var i = 0; i < SquaresTall; i++) {
         DrawHorisontalWalls(i * 2);
         DrawVerticalWalls(i * 2 + 1);
     }
-    DrawHorisontalWalls(SQUARESTALL * 2);
+    DrawHorisontalWalls(SquaresTall * 2);
     
     function DrawHorisontalWalls(MazeY) {
-        for (var i = 0; i < SQUARESWIDE; i++) {
+        for (var i = 0; i < SquaresWide; i++) {
             var WallValue = Maze[MazeY][i * 2 + 1];
             if (WallValue == 2 || WallValue == 3) {
                 MakeWall(i, (Math.floor(MazeY / 2)), (i + 1), (Math.floor(MazeY / 2)));
@@ -256,7 +255,7 @@ function DrawMaze() {
         }
     }
     function DrawVerticalWalls(MazeY) {
-        for (var i = 0; i <= SQUARESWIDE; i++) {
+        for (var i = 0; i <= SquaresWide; i++) {
             var WallValue = Maze[MazeY][i * 2];
             if (WallValue == 2 || WallValue == 3) {
                 MakeWall(i, (Math.floor(MazeY / 2)), i, (Math.floor(MazeY / 2) + 1));
@@ -268,13 +267,13 @@ function DrawMaze() {
         // Make the grid a 21 by 21 square, and pass in points to that square
     
         // Create new sprite
-        var HorisontalWallGap = GameWidth / SQUARESWIDE;
-        var VerticalWallGap = GameHeight / SQUARESTALL;
+        var HorisontalWallGap = GAMEWIDTH / SquaresWide;
+        var VerticalWallGap = GAMEHEIGHT / SquaresTall;
     
         var WallX = HorisontalWallGap * StartingX + (HorisontalWallGap * EndingX - HorisontalWallGap * StartingX) / 2;
         var WallY = VerticalWallGap * StartingY + (VerticalWallGap * EndingY - VerticalWallGap * StartingY) / 2;
-        var WallWidth = HorisontalWallGap * EndingX - HorisontalWallGap * StartingX + MazeWallWidth;
-        var WallHeight = VerticalWallGap * EndingY - VerticalWallGap * StartingY + MazeWallWidth;
+        var WallWidth = HorisontalWallGap * EndingX - HorisontalWallGap * StartingX + MAZEWALLWIDTH;
+        var WallHeight = VerticalWallGap * EndingY - VerticalWallGap * StartingY + MAZEWALLWIDTH;
         MazeWall = new Sprite(WallX, WallY, WallWidth, WallHeight, "k");
         MazeWall.color = "#6B5C7D";
     
@@ -283,24 +282,24 @@ function DrawMaze() {
 }
 
 // Create all of the sprites
-function CreateSprites(squaresWide, squaresTall) {
+function CreateSprites(_SquaresWide, _SquaresTall) {
     // Change the squares wide and squares tall to the variables
-    SQUARESWIDE = squaresWide;
-    SQUARESTALL = squaresTall;
-    var SquareWidth = GameWidth / SQUARESWIDE - MazeWallWidth;
-    var SquareHeight = GameHeight / SQUARESTALL - MazeWallWidth;
+    SquaresWide = _SquaresWide;
+    SquaresTall = _SquaresTall;
+    var SquareWidth = GAMEWIDTH / SquaresWide - MAZEWALLWIDTH;
+    var SquareHeight = GAMEHEIGHT / SquaresTall - MAZEWALLWIDTH;
     var PlayerWidth =  0.5 * SquareWidth;
     var PlayerHeight = 0.5 * SquareHeight;
 
     // Player sprite
-    var PlayerStartingX = (GameWidth / SQUARESWIDE - PlayerWidth);
-    var PlayerStartingY = (GameHeight / SQUARESTALL - PlayerHeight);
+    var PlayerStartingX = (GAMEWIDTH / SquaresWide - PlayerWidth);
+    var PlayerStartingY = (GAMEHEIGHT / SquaresTall - PlayerHeight);
     Player = new Sprite(PlayerStartingX, PlayerStartingY, PlayerWidth, PlayerHeight, "d");
     Player.strokeWeight = 0;
     Player.color = "#FF69B4";
 
     // Make the finish square
-    FinishSquare = new Sprite(GameWidth - PlayerWidth, GameHeight - PlayerHeight, SquareWidth, SquareHeight, "k");
+    FinishSquare = new Sprite(GAMEWIDTH - PlayerWidth, GAMEHEIGHT - PlayerHeight, SquareWidth, SquareHeight, "k");
     FinishSquare.color = "Green";
     FinishSquare.strokeWeight = 0;
     FinishSquare.collides(Player, WinGame);
@@ -311,11 +310,11 @@ function CreateSprites(squaresWide, squaresTall) {
     // Draw the walls
     MazeWalls = new Group();
     DrawMaze();
-    MazeWalls.color = MazeWallsColor;
+    MazeWalls.color = MAZEWALLCOLOR;
 }
-function StartGame(MazeSquaresWide, MazeSquaresTall, gameSeconds) {
+function StartGame(_MazeSquaresWide, _MazeSquaresTall, _GameSeconds) { 
     // Set the time for how long the game runs
-    GameSeconds = gameSeconds;
+    GameSeconds = _GameSeconds;
 
     // Remove the buttons
     smallButton.remove();
@@ -330,7 +329,7 @@ function StartGame(MazeSquaresWide, MazeSquaresTall, gameSeconds) {
     SecondsLeft = GameSeconds;
 
     // Make the sprites
-    CreateSprites(MazeSquaresWide, MazeSquaresTall);
+    CreateSprites(_MazeSquaresWide, _MazeSquaresTall);
 }
 function EndGame(gameState) {
     // Remove the sprites
@@ -368,7 +367,7 @@ function MakeButtons() {
         StartGame(20, 20, 25);
     }
     function CreateStupidBigGame() {
-        StartGame(50, 60, 60);
+        StartGame(50, 50, 150);
     }
 }
 
@@ -376,7 +375,7 @@ function MakeButtons() {
 function setup() {
     console.log("Setup started");
 
-    cnw = new Canvas(GameWidth + InformationPanelSize, GameHeight);
+    cnw = new Canvas(GAMEWIDTH + INFORMATIONPANELWIDTH, GAMEHEIGHT);
     MakeButtons();
 
     console.log("Setup finished");
@@ -391,23 +390,23 @@ function draw() {
             // Show the text for the start screen
 	        textSize(TEXTSIZE);
             textAlign(CENTER, TOP);
-            text("W, A, S, D to move", (GameWidth + InformationPanelSize) / 2, GameHeight / 2 - (TEXTSIZE + 25));
-            text("Try to get from the top-left, to the bottom-right,", (GameWidth + InformationPanelSize) / 2, GameHeight / 2);
-            text("in the amount of time given", (GameWidth + InformationPanelSize) / 2, GameHeight / 2 + (TEXTSIZE + 5));
-            text("Press 'r' to restart", (GameWidth + InformationPanelSize) / 2, GameHeight / 2 + (TEXTSIZE * 2 + 30));
+            text("W, A, S, D to move", (GAMEWIDTH + INFORMATIONPANELWIDTH) / 2, GAMEHEIGHT / 2 - (TEXTSIZE + 25));
+            text("Try to get from the top-left, to the bottom-right,", (GAMEWIDTH + INFORMATIONPANELWIDTH) / 2, GAMEHEIGHT / 2);
+            text("in the amount of time given", (GAMEWIDTH + INFORMATIONPANELWIDTH) / 2, GAMEHEIGHT / 2 + (TEXTSIZE + 5));
+            text("Press 'r' to restart", (GAMEWIDTH + INFORMATIONPANELWIDTH) / 2, GAMEHEIGHT / 2 + (TEXTSIZE * 2 + 30));
             break;
         case 1:
             // Game is running
 
             // Timer
             CurrentFrame++;
-            if(CurrentFrame == 60) {
+            if (CurrentFrame == 60) {
                 SecondsLeft--;
                 CurrentFrame = 0;
             }
 
             // Check if the game is over, or that the user has pressed restart (r)
-            if(SecondsLeft == 0) {
+            if (SecondsLeft == 0) {
                 console.log("Game Over");
                 EndGame(3);
                 break;
@@ -420,15 +419,15 @@ function draw() {
             // Text
 	        textSize(TEXTSIZE);
             textAlign(CENTER, TOP);
-            text("Time:", GameWidth + (InformationPanelSize / 2), 15);
-	        textSize(TEXTSIZE * 4);
-            text(SecondsLeft, GameWidth + (InformationPanelSize / 2), TEXTSIZE * 1.5 + 20);
+            text("Time:", GAMEWIDTH + (INFORMATIONPANELWIDTH / 2), 15);
+	        textSize(TEXTSIZE * 3);
+            text(SecondsLeft, GAMEWIDTH + (INFORMATIONPANELWIDTH / 2), TEXTSIZE * 1.5 + 20);
             
 	        textSize(TEXTSIZE);
-            text("Restart: 'r'", GameWidth + (InformationPanelSize / 2), TEXTSIZE * 8);
+            text("Restart: 'r'", GAMEWIDTH + (INFORMATIONPANELWIDTH / 2), TEXTSIZE * 7);
             
             // Controls
-            if(kb.pressing('left') && Player.vel.x > -PlayerMaxSpeed) {
+            if (kb.pressing('left') && Player.vel.x > -PlayerMaxSpeed) {
                 Player.vel.x -= PlayerSpeed;
             } if (kb.pressing('right') && Player.vel.x < PlayerMaxSpeed) {
                 Player.vel.x += PlayerSpeed;
@@ -442,15 +441,15 @@ function draw() {
             // Game has finished, player won
 	        textSize(TEXTSIZE);
             textAlign(CENTER, CENTER);
-            text("You Won", (GameWidth + InformationPanelSize) / 2, GameHeight / 2);
-            text("You had " + SecondsLeft + " seconds left", (GameWidth + InformationPanelSize) / 2, GameHeight / 2 + TEXTSIZE + 5);
+            text("You Won", (GAMEWIDTH + INFORMATIONPANELWIDTH) / 2, GAMEHEIGHT / 2);
+            text("You had " + SecondsLeft + " seconds left", (GAMEWIDTH + INFORMATIONPANELWIDTH) / 2, GAMEHEIGHT / 2 + TEXTSIZE + 5);
             break;
         case 3:
             // Game has finished, player lost
             textSize(TEXTSIZE);
             textAlign(CENTER, CENTER);
-            text("You Lost", (GameWidth + InformationPanelSize) / 2, GameHeight / 2);
-            text("You had " + SecondsLeft + " seconds left", (GameWidth + InformationPanelSize) / 2, GameHeight / 2 + TEXTSIZE + 5);
+            text("You Lost", (GAMEWIDTH + INFORMATIONPANELWIDTH) / 2, GAMEHEIGHT / 2);
+            text("You had " + SecondsLeft + " seconds left", (GAMEWIDTH + INFORMATIONPANELWIDTH) / 2, GAMEHEIGHT / 2 + TEXTSIZE + 5);
             break;
         default:
             // Throw an error is gamestate is none of the above
