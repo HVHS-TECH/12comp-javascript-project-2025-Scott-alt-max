@@ -1,9 +1,3 @@
-// TODO
-// Make the comments read better
-// Fix all other variable names to naming conventions
-// Make the game actually look nice
-// Add air friction
-
 // Consts and Variables
 const INFORMATIONPANELWIDTH = 150;
 const GAMEWIDTH = Math.min(window.innerWidth * 0.7, window.innerHeight * 0.7);
